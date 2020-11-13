@@ -24,7 +24,10 @@ AuthorSchema
 AuthorSchema
 .virtual('lifespan')
 .get(function () {
-  return (this.date_of_death.getYear() - this.date_of_birth.getYear()).toString();
+  let isAlive = !!this.date_of_death;
+  let lifespan = isAlive ?  (this.date_of_death.getYear() - this.date_of_birth.getYear()).toString() : 
+      `${this.date_of_birth.getFullYear().toString()} - Still alive`
+  return lifespan;
 });
 
 // Virtual for author's birth date
