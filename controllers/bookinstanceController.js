@@ -44,7 +44,7 @@ exports.bookinstance_create_get = function(req, res, next) {
     .exec(function (err, books) {
       if (err) { return next(err); }
       // Successful, so render.
-      res.render('bookinstance_form', {title: 'Create BookInstance', book_list: books});
+      res.render('bookinstance_form', {title: 'Create BookInstance', book_list: books, isUpdate: false});
     });
     
 };
@@ -121,10 +121,39 @@ exports.bookinstance_delete_post = function(req, res) {
 
 // Display BookInstance update form on GET.
 exports.bookinstance_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance update GET');
+    BookInstance.findById(req.params.id)
+    .populate('book')
+    .exec(function (err, bookinstance) {
+        if (err) { return next(err); }
+        if (bookinstance==null) { // No results.
+            var err = new Error('Book copy not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Successful, so render.
+        res.render('bookinstance_form', { title: 'Update copy: '+ bookinstance.book.title, bookinstance:  bookinstance, isUpdate: true});
+    })
 };
 
 // Handle bookinstance update on POST.
 exports.bookinstance_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance update POST');
+    // validate and sanitize fields
+    // Only thing i could validate is checking if status != available => check if 
+    // due date is selected
+
+    // Create a Book object with escaped and trimmed data.
+    let bookinstance = new BookInstance(
+        { book: req.body.book,
+          imprint: req.body.imprint,
+          status: req.body.status,
+          due_back: req.body.due_back,
+          _id:req.params.id //This is required, or a new ID will be assigned!
+         });
+
+    // Data from form is valid. Update the record.
+    BookInstance.findByIdAndUpdate(req.params.id, bookinstance, {}, function (err,thebook) {
+        if (err) { return next(err); }
+           // Successful - redirect to book detail page.
+           res.redirect(thebook.url);
+        });
 };

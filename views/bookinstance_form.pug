@@ -1,33 +1,46 @@
+
 extends layout
 
-block content
+
+block content  
   h1=title
+  h2=isCreate
+  
 
   form(method='POST' action='')
-    div.form-group
-      label(for='book') Book:
-      select#book.form-control(type='select' placeholder='Select book' name='book' required='true')
-        - book_list.sort(function(a, b) {let textA = a.title.toUpperCase(); let textB = b.title.toUpperCase(); return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;});
-        for book in book_list
-          if bookinstance
-            option(value=book._id selected=(bookinstance.book.toString()==book._id.toString() ? 'selected' : false)) #{book.title}
-          else
-            option(value=book._id) #{book.title}
-        
-    div.form-group
-      label(for='imprint') Imprint:
-      input#imprint.form-control(type='text' placeholder='Publisher and date information' name='imprint' required='true' value=(undefined===bookinstance ? '' : bookinstance.imprint))
-    div.form-group
-      label(for='due_back') Date when book available:
-      input#due_back.form-control(type='date' name='due_back' value=(undefined===bookinstance ? '' : bookinstance.due_back))
+    if isUpdate
+      div.form-group
+        label(for='book') Book:
+        input#imprint.form-control(type="text", name="book", readonly=true, value=(bookinstance.book.title)) 
+      div.form-group
+        label(for='imprint') Imprint:
+        input#imprint.form-control(type='text' placeholder='Publisher and date information' name='imprint' required='true' readonly=true value=(bookinstance.imprint))
+
+    else
+      div.form-group
+        label(for='book') Book:
+        select#book.form-control(type='select' placeholder='Select book' name='book' required='true')
+          - book_list.sort(function(a, b) {let textA = a.title.toUpperCase(); let textB = b.title.toUpperCase(); return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;});
+          for book in book_list
+            if bookinstance
+              option(value=book._id selected=(bookinstance.book.toString()==book._id.toString() ? 'selected' : false)) #{book.title}
+            else
+              option(value=book._id) #{book.title}
+      div.form-group
+        label(for='imprint') Imprint:
+        input#imprint.form-control(type='text' placeholder='Publisher and date information' name='imprint' required='true' value=(undefined===bookinstance ? '' : bookinstance.imprint))
             
     div.form-group
       label(for='status') Status:
       select#status.form-control(type='select' placeholder='Select status' name='status' required='true')
-        option(value='Maintenance') Maintenance
-        option(value='Available') Available
-        option(value='Loaned') Loaned
-        option(value='Reserved') Reserved
+        option(value='Maintenance' selected=bookinstance.status=='Maintenance') Maintenance
+        option(value='Available' selected=bookinstance.status=='Available' ) Available
+        option(value='Loaned' selected=bookinstance.status=='Loaned' ) Loaned
+        option(value='Reserved' selected=bookinstance.status=='Reserved' ) Reserved
+         
+    div.form-group
+      label(for='due_back') Date when book available:
+      input#due_back.form-control(type='date' name='due_back' value=(undefined===bookinstance ? '' : bookinstance.due_back) )
 
     button.btn.btn-primary(type='submit') Submit
 
